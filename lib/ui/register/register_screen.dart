@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do/ui/components/custom_form_field.dart';
 import 'package:to_do/ui/database/model/user.dart' as MyUser;
 import 'package:to_do/ui/database/my_database.dart';
@@ -7,6 +8,8 @@ import 'package:to_do/ui/dialouge_utlis.dart';
 import 'package:to_do/ui/home/home_screen.dart';
 import 'package:to_do/ui/login/login_screen.dart';
 import 'package:to_do/vaild_utils.dart';
+
+import '../../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const String routeName = "register_screen";
@@ -32,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: const BoxDecoration(
           color: Color(0XFFDFECDB),
           image: DecorationImage(
-              image: AssetImage("assets/images/logo.png"), fit: BoxFit.fill)),
+              image: AssetImage("assets/images/auth_bg.jpg"), fit: BoxFit.fill)),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -47,18 +50,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * .3,
+                    height: MediaQuery.of(context).size.height * .3,
                   ),
                   CustomFormField(
                       controller: nameController,
                       label: "Full Name",
                       validator: (text) {
-                        if (text == null || text
-                            .trim()
-                            .isEmpty) {
+                        if (text == null || text.trim().isEmpty) {
                           return "Please enter full name";
                         }
                         return null;
@@ -67,9 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: emailController,
                     label: "Email Address",
                     validator: (text) {
-                      if (text == null || text
-                          .trim()
-                          .isEmpty) {
+                      if (text == null || text.trim().isEmpty) {
                         return "Please enter email Address";
                       }
                       if (!ValidUtils.isValidEmail(text)) {
@@ -83,9 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: passwordController,
                     label: "Password",
                     validator: (text) {
-                      if (text == null || text
-                          .trim()
-                          .isEmpty) {
+                      if (text == null || text.trim().isEmpty) {
                         return "Please enter your password";
                       }
                       if (text.length < 6) {
@@ -100,9 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: confirmPasswordController,
                     label: "Password Confirmation",
                     validator: (text) {
-                      if (text == null || text
-                          .trim()
-                          .isEmpty) {
+                      if (text == null || text.trim().isEmpty) {
                         return "Please confirm your password";
                       }
                       if (passwordController.text != text) {
@@ -122,9 +114,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Text(
                         "Register",
                         style: TextStyle(fontSize: 24),
-                      )), TextButton(onPressed: () {
-                    Navigator.pushNamed(context, LoginScreen.routeName);
-                  }, child: const Text("Already Have Account?"))
+                      )),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(
+                            context, LoginScreen.routeName);
+                      },
+                      child: const Text("Already Have Account?"))
                 ],
               ),
             ),
@@ -150,11 +146,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           name: nameController.text,
           email: emailController.text);
       await MyDatabase.addUser(user);
+      var authProvider = Provider.of<MyAuthProvider>(context, listen: false);
+      authProvider.updateUser(user);
       DialogUtils.showMessage(context, 'User registered successfully',
-      postActionName: 'OK',
-      postAction: (){
-           Navigator.pushNamed(context, HomeScreen.routeName);
-      },dismissable: false);
+          posActionName: 'OK', posAction: () {
+        Navigator.pushReplacementNamed(context, HomeScreen.routeName);
+      }, dismissable: false);
     } on FirebaseException catch (e) {
       DialogUtils.hideDialog(context);
       String errorMessage = "something went wrong";
@@ -163,14 +160,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else if (e.code == 'email-already-in-use') {
         errorMessage = 'The account already exists for that email.';
       }
-      DialogUtils.showMessage(context, errorMessage, postActionName: "OK");
+      DialogUtils.showMessage(context, errorMessage, posActionName: "OK");
     } catch (e) {
       String errorMessage = "Something went wrong";
       DialogUtils.hideDialog(context);
       DialogUtils.showMessage(context, errorMessage,
-          postActionName: "Cancle", negActionName: "Try Again", negAction: () {
-            register();
-          });
+          posActionName: "Cancle", negActionName: "Try Again", negAction: () {
+        register();
+      });
     }
   }
 }

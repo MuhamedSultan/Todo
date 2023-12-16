@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do/providers/auth_provider.dart';
 import 'package:to_do/ui/home/home_screen.dart';
 import 'package:to_do/ui/login/login_screen.dart';
 import 'package:to_do/ui/register/register_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'firebase_options.dart';
-void main()async {
-WidgetsFlutterBinding.ensureInitialized();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+      create: (buildContext) => MyAuthProvider(), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -20,33 +25,28 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder:FToastBuilder(),
       routes: {
-        RegisterScreen.routeName : (buildContext)=> RegisterScreen(),
-        LoginScreen.routeName : (buildContext)=> LoginScreen(),
-        HomeScreen.routeName : (buildContext)=>  HomeScreen(),
+        RegisterScreen.routeName: (buildContext) => RegisterScreen(),
+        LoginScreen.routeName: (buildContext) => LoginScreen(),
+        HomeScreen.routeName: (buildContext) => HomeScreen(),
       },
       initialRoute: RegisterScreen.routeName,
       theme: ThemeData(
-        textTheme: TextTheme(
-          headline4: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black
-          )
-        ),
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Color(0XFFDFECDB),
-        appBarTheme: AppBarTheme(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          centerTitle: true,
-        ),
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.transparent,
-          elevation: 0
-        )
-      ),
+          textTheme: TextTheme(
+              headline4: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black)),
+          primarySwatch: Colors.blue,
+          scaffoldBackgroundColor: Color(0XFFDFECDB),
+          appBarTheme: AppBarTheme(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            centerTitle: true,
+          ),
+          bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              backgroundColor: Colors.transparent, elevation: 0)),
     );
   }
 }
-

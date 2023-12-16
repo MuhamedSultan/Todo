@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do/date_utils.dart';
+import 'package:to_do/providers/auth_provider.dart';
 import 'package:to_do/ui/components/custom_form_field.dart';
+import 'package:to_do/ui/database/model/task.dart';
+import 'package:to_do/ui/database/my_database.dart';
+import 'package:to_do/ui/dialouge_utlis.dart';
 
 class AddTaskBottomSheet extends StatefulWidget {
   @override
@@ -25,7 +30,10 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
           children: [
             Text(
               "add new task ",
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .headline4,
             ),
             CustomFormField(
                 label: "Task title",
@@ -60,8 +68,8 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                   margin: EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
                       border: Border(
-                    bottom: BorderSide(color: Colors.black26),
-                  )),
+                        bottom: BorderSide(color: Colors.black26),
+                      )),
                   child: Text(
                       "${MyDateUtils.formatTaskDate(selectedDate)}",
                       style: TextStyle(fontSize: 18))),
@@ -82,10 +90,22 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
     );
   }
 
-  void addTask() {
+  void addTask() async {
     if (formKey.currentState?.validate() == false) {
       return;
     }
+    DialogUtils.showLoadingDialog(context, 'Loading');
+    Task task = Task(title: titleController.text,
+        description: descriptionController.text,
+        dateTime: selectedDate);
+
+    MyAuthProvider authProvider = Provider.of<MyAuthProvider>(context, listen: false);
+    await MyDatabase.addTask(authProvider.currentUser?.id ?? "", task);
+    DialogUtils.hideDialog(context);
+    DialogUtils.showMessage(
+        context, 'Task added successfully', posActionName:'OK',posAction:(){
+          Navigator.pop(context);
+    });
   }
 
   var selectedDate = DateTime.now();

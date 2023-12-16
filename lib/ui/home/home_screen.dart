@@ -19,6 +19,8 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         title: Text("Todo App"),
+        // automaticallyImplyLeading: false,
+
       ),
       floatingActionButton: FloatingActionButton(
         shape: StadiumBorder(side: BorderSide(color: Colors.white, width: 4)),
@@ -58,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  var tabs = [Todolistab(), SettingsTab()];
+  var tabs = [TodolistTab(), SettingsTab()];
 
   void showAddTaskSheet() {
     showModalBottomSheet(context: context, builder: (BuildContext){
