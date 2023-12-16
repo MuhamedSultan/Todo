@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do/providers/auth_provider.dart';
 import 'package:to_do/ui/database/my_database.dart';
 import 'package:to_do/ui/home/home_screen.dart';
 import 'package:to_do/ui/register/register_screen.dart';
-
 import '../../vaild_utils.dart';
 import '../components/custom_form_field.dart';
 import '../dialouge_utlis.dart';
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: const BoxDecoration(
           color: Color(0XFFDFECDB),
           image: DecorationImage(
-              image: AssetImage("assets/images/logo.png"), fit: BoxFit.fill)),
+              image: AssetImage("assets/images/auth_bg.jpg"), fit: BoxFit.fill)),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -86,7 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       )),
                   TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, HomeScreen.routeName);
+                        Navigator.pushReplacementNamed(
+                            context, RegisterScreen.routeName);
                       },
                       child: const Text("Don't Have Account?"))
                 ],
@@ -111,26 +113,29 @@ class _LoginScreenState extends State<LoginScreen> {
       // DialogUtils.hideDialog(context);
       // DialogUtils.showMessage(context, "Successful Login"
       //     "${result.user?.uid}");
-      var user = MyDatabase.readUser(result.user?.uid ?? "");
+      var user = await MyDatabase.readUser(result.user?.uid ?? "");
       DialogUtils.hideDialog(context);
       if (user == null) {
         DialogUtils.showMessage(context, "error. can't find user",
-            postActionName: "OK");
+            posActionName: "OK");
         return;
       }
+      var authProvider = Provider.of<MyAuthProvider>(context, listen: false);
+      authProvider.updateUser(user);
+
       DialogUtils.showMessage(context, 'User logged in successfully',
-          postActionName: 'OK', postAction: () {
-        Navigator.pushNamed(context, HomeScreen.routeName);
+          posActionName: 'OK', posAction: () {
+        Navigator.pushReplacementNamed(context, HomeScreen.routeName);
       }, dismissable: false);
     } on FirebaseException catch (e) {
       DialogUtils.hideDialog(context);
       String errorMessage = "wrong email or password";
-      DialogUtils.showMessage(context, errorMessage, postActionName: "OK");
+      DialogUtils.showMessage(context, errorMessage, posActionName: "OK");
     } catch (e) {
       String errorMessage = "Something went wrong";
       DialogUtils.hideDialog(context);
       DialogUtils.showMessage(context, errorMessage,
-          postActionName: "Cancle", negActionName: "Try Again", negAction: () {
+          posActionName: "Cancle", negActionName: "Try Again", negAction: () {
         login();
       });
     }
