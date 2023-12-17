@@ -41,6 +41,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                   if (text == null || text.isEmpty) {
                     return 'please enter task title';
                   }
+                  return null;
                 },
                 controller: titleController),
             CustomFormField(
@@ -49,6 +50,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                   if (text == null || text.isEmpty) {
                     return 'please enter task description';
                   }
+                  return null;
                 },
                 lines: 5,
                 controller: descriptionController),
@@ -97,8 +99,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
     DialogUtils.showLoadingDialog(context, 'Loading');
     Task task = Task(title: titleController.text,
         description: descriptionController.text,
-        dateTime: selectedDate);
-
+        dateTime: MyDateUtils.dayOnly(selectedDate));
     MyAuthProvider authProvider = Provider.of<MyAuthProvider>(context, listen: false);
     await MyDatabase.addTask(authProvider.currentUser?.id ?? "", task);
     DialogUtils.hideDialog(context);

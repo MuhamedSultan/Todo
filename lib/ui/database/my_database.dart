@@ -42,8 +42,12 @@ class MyDatabase {
   static Future<QuerySnapshot<Task>> getTasks(String uid) {
     return getTasksCollection(uid).get();
   }
-  static Stream<QuerySnapshot<Task>> getTasksRealTimeUpdate(String uid)  {
-    return getTasksCollection(uid).snapshots();
+
+  static Stream<QuerySnapshot<Task>> getTasksRealTimeUpdate(
+      String uid, int date) {
+    return getTasksCollection(uid)
+        .where('dateTime', isEqualTo: date)
+        .snapshots();
   }
 
   static Future<void> deleteTask(String uid, String taskId) {
